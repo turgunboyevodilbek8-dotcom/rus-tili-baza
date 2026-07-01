@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Baza: Rus Tili</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{
+  --primary:#006d37;--primary-dark:#005027;--primary-container:#2ecc71;--on-primary-container:#005027;
+  --secondary-container:#fed023;--on-secondary-container:#6f5900;
+  --streak:#ea580c;--streak-dark:#c2410c;
+  --error:#ba1a1a;--error-container:#ffdad6;--on-error-container:#93000a;
+  --bg:#f8fafa;--surface:#ffffff;--surface-low:#f2f4f4;--surface-high:#e6e8e9;
+  --on-surface:#191c1d;--on-surface-variant:#516152;--outline-variant:#d6dcd6;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--on-surface);max-width:480px;margin:0 auto;min-height:100vh;padding-bottom:88px}
+.page{display:none;padding:16px}.page.active{display:block}
+input{font-family:inherit}
+.squishy{transition:transform .1s ease,box-shadow .1s ease;cursor:pointer}
+.squishy:active{transform:translateY(3px)}
+.btn-primary{background:var(--primary-container);color:var(--on-primary-container);border:none;border-radius:16px;box-shadow:0 4px 0 0 var(--primary-dark);font-weight:800}
+.btn-primary:active{box-shadow:0 1px 0 0 var(--primary-dark)}
+.btn-ghost{background:none;color:var(--on-surface-variant);border:2px solid var(--outline-variant);border-radius:14px;box-shadow:0 3px 0 0 var(--outline-variant);font-weight:700}
+.btn-ghost:active{box-shadow:0 1px 0 0 var(--outline-variant)}
+.card{background:var(--surface);border-radius:24px;border:2px solid var(--outline-variant);box-shadow:0 4px 0 0 rgba(0,0,0,.04)}
+</style>
+</head>
+<body>
+<div class="page active" id="home">
+  <div id="loadingMsg" style="background:#e7f8ee;border:2px solid #a7e8c3;border-radius:12px;padding:20px;margin-bottom:16px;text-align:center">
+  <p style="font-size:24px;font-weight:700;color:#005027">⏳ Yuklanmoqda...</p>
+  <p style="font-size:14px;color:#006d37;margin-top:8px">JavaScript ishlayapti ✅</p>
+  <p id="dataCheck" style="font-size:14px;color:#516152;margin-top:8px">Ma'lumotlar tekshirilmoqda...</p>
+</div>
+  <noscript>
+    <div style="background:#ffdad6;border:2px solid #ffb4ab;border-radius:12px;padding:16px;margin-bottom:16px">
+      <p style="font-size:18px;font-weight:700;color:#93000a">⚠️ JavaScript o'chirilgan!</p>
+      <p style="font-size:14px;color:#ba1a1a">Bu sahifa JavaScript talab qiladi. Brauzeringizda JavaScript yoqing.</p>
+    </div>
+  </noscript>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px">
+    <h1 style="font-size:20px;font-weight:500">Assalomu alaykum! 👋</h1>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span id="xpBox" style="display:flex;align-items:center;gap:4px;background:#e6e8e9;border-radius:999px;padding:6px 12px;font-size:14px;font-weight:700;color:#191c1d">⭐ <span id="xpNum">0</span></span>
+      <span id="streakBox" style="display:none;background:#fff4e0;border:1px solid #ffdcc5;border-radius:999px;padding:6px 12px;font-size:20px;font-weight:700;color:#ea580c">🔥 <span id="streakNum">0</span></span>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px">
+    <div style="background:#fff;border-radius:24px;padding:16px;border:1px solid #d6dcd6"><p style="font-size:12px;color:#516152;margin-bottom:4px">O'rganilgan so'zlar</p><p style="font-size:30px;font-weight:700;color:#006d37" id="wordsNum">0</p></div>
+    <div style="background:#fff;border-radius:24px;padding:16px;border:1px solid #d6dcd6"><p style="font-size:12px;color:#516152;margin-bottom:4px">Tugatilgan darslar</p><p style="font-size:30px;font-weight:700;color:#944a00" id="lessonsNum">0</p></div>
+  </div>
+  <div style="background:#fff;border-radius:24px;padding:20px;border:1px solid #d6dcd6;margin-bottom:24px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="font-size:14px;font-weight:600;color:#191c1d">Umumiy progress</span><span style="font-size:13px;color:#516152" id="progText">0 / 0 dars</span></div>
+    <div style="width:100%;height:10px;background:#d6dcd6;border-radius:999px;overflow:hidden"><div id="progBar" style="height:100%;background:#006d37;border-radius:999px;width:0%"></div></div>
+  </div>
+  <div id="ctaWrap" style="margin-bottom:24px"></div>
+  <p style="font-size:13px;font-weight:600;color:#516152;margin-bottom:12px">Darslar</p>
+  <div id="homeList"></div>
+</div>
+<div class="page" id="lessons">
+  <button id="backFromList" style="background:none;border:none;font-size:15px;color:#516152;cursor:pointer;padding:8px 4px;margin-bottom:12px">‹ Orqaga</button>
+  <h1 style="font-size:20px;font-weight:700;margin-bottom:16px">📚 Barcha darslar</h1>
+  <input id="searchBox" placeholder="🔍 Qidirish..." style="width:100%;padding:12px 16px;border:2px solid #d6dcd6;border-radius:14px;font-size:15px;margin-bottom:16px;outline:none">
+  <div id="listContent"></div>
+</div>
+<div class="page" id="lesson">
+  <button id="backFromLesson" style="background:none;border:none;font-size:15px;color:#516152;cursor:pointer;padding:8px 4px;margin-bottom:8px">‹ Chiqish</button>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <h1 id="lTitle" style="font-size:18px;font-weight:700"></h1>
+    <span id="lStep" style="font-size:12px;color:#516152;background:#f2f4f4;padding:4px 12px;border-radius:999px"></span>
+  </div>
+  <div style="width:100%;height:8px;background:#d6dcd6;border-radius:999px;margin-bottom:16px;overflow:hidden"><div id="lBar" style="height:100%;background:#006d37;border-radius:999px"></div></div>
+  <div id="content"></div>
+</div>
+<div class="page" id="words">
+  <button id="backFromWords" style="background:none;border:none;font-size:15px;color:#516152;cursor:pointer;padding:8px 4px;margin-bottom:12px">‹ Orqaga</button>
+  <h1 style="font-size:20px;font-weight:700;margin-bottom:16px">📝 So'zlarim</h1>
+  <div id="wordsContent"></div>
+</div>
+<div class="page" id="rank">
+  <button id="backFromRank" style="background:none;border:none;font-size:15px;color:#516152;cursor:pointer;padding:8px 4px;margin-bottom:12px">‹ Orqaga</button>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+    <h1 style="font-size:20px;font-weight:700">🏆 Reyting</h1>
+    <span style="display:flex;align-items:center;gap:4px;background:#e6e8e9;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;color:#191c1d">⭐ <span id="rankMyXp">0</span> XP</span>
+  </div>
+  <p style="font-size:12px;color:#8a9a8b;margin-bottom:16px">Haftalik reyting — mahalliy taqqoslash, faqat siz uchun</p>
+  <div id="rankContent"></div>
+</div>
+<div class="page" id="done" style="text-align:center;padding-top:40px">
+  <div style="font-size:60px;margin-bottom:16px">🏆</div>
+  <h2 style="font-size:26px;font-weight:700;margin-bottom:6px">Dars tugadi!</h2>
+  <p id="doneName" style="font-size:16px;color:#516152;margin-bottom:20px"></p>
+  <div style="background:#fff;border-radius:24px;padding:24px;margin:0 16px 24px;border:1px solid #d6dcd6">
+    <div style="display:flex;justify-content:space-around">
+      <div><div id="doneOk" style="font-size:30px;font-weight:700;color:#006d37">0</div><div style="font-size:12px;color:#516152">To'g'ri</div></div>
+      <div style="width:1px;background:#d6dcd6"></div>
+      <div><div id="doneBad" style="font-size:30px;font-weight:700;color:#ba1a1a">0</div><div style="font-size:12px;color:#516152">Xato</div></div>
+      <div style="width:1px;background:#d6dcd6"></div>
+      <div><div id="donePct" style="font-size:30px;font-weight:700;color:#006d37">0%</div><div style="font-size:12px;color:#516152">Ball</div></div>
+    </div>
+  </div>
+  <button id="backHome" class="squishy" style="margin:0 16px;width:calc(100% - 32px);background:#2ecc71;color:#005027;border:none;border-radius:16px;padding:18px;font-size:18px;font-weight:800;box-shadow:0 4px 0 0 #005027">🏠 Bosh sahifaga qaytish</button>
+</div>
+<div class="page" id="banned" style="text-align:center;padding-top:80px">
+  <p style="font-size:60px">🚫</p>
+  <h1 style="font-size:20px;font-weight:800;margin-top:16px">Kirish bloklangan</h1>
+  <p style="font-size:14px;color:#516152;margin-top:8px;padding:0 24px">Sizning hisobingiz administrator tomonidan bloklangan. Savollar bo'lsa, botga murojaat qiling.</p>
+</div>
+<nav id="bottomNav" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid #d6dcd6;display:flex;z-index:50">
+  <button id="nav0" style="flex:1;display:flex;flex-direction:column;align-items:center;padding:12px 0 10px;font-size:12px;background:none;border:none;cursor:pointer;color:#006d37;font-weight:700"><span style="font-size:26px;margin-bottom:2px">🏠</span>Bosh sahifa</button>
+  <button id="nav1" style="flex:1;display:flex;flex-direction:column;align-items:center;padding:12px 0 10px;font-size:12px;background:none;border:none;cursor:pointer;color:#516152"><span style="font-size:26px;margin-bottom:2px">📚</span>Darslar</button>
+  <button id="nav2" style="flex:1;display:flex;flex-direction:column;align-items:center;padding:12px 0 10px;font-size:12px;background:none;border:none;cursor:pointer;color:#516152"><span style="font-size:26px;margin-bottom:2px">📝</span>So'zlarim</button>
+  <button id="nav3" style="flex:1;display:flex;flex-direction:column;align-items:center;padding:12px 0 10px;font-size:12px;background:none;border:none;cursor:pointer;color:#516152"><span style="font-size:26px;margin-bottom:2px">🏆</span>Reyting</button>
+</nav>
+<script>
+var L=[{"id":1,"t":"Rus alifbosi: unlilar","tr":"Гласные буквы","cat":"Noldan boshlash","lv":"basics","p":[{"id":901,"ru":"А а","uz":"A tovushi","ctx":"мама (ona) soʻzida","gr":"Ochiq va keng talaffuz qilinadi, oʻzbekcha A ga oʻxshaydi."},{"id":902,"ru":"О о","uz":"O tovushi","ctx":"окно (deraza) soʻzida","gr":"Urgʻu ostida O, urgʻusiz A kabi talaffuz qilinadi."},{"id":903,"ru":"И и","uz":"I tovushi","ctx":"игра (oʻyin) soʻzida","gr":"Doim yumshoq va tor I tovushi."},{"id":904,"ru":"У у","uz":"U tovushi","ctx":"утро (tong) soʻzida","gr":"Lablar yumaloq holatda talaffuz qilinadi."},{"id":905,"ru":"Ы ы","uz":"Qattiq I tovushi","ctx":"рыба (baliq) soʻzida","gr":"Oʻzbek tilida ekvivalenti yoʻq, tilni orqaga tortib ayting."},{"id":906,"ru":"Э э","uz":"E tovushi","ctx":"это (bu) soʻzida","gr":"Ochiq E tovushi, doim qattiq undoshdan keyin keladi."},{"id":907,"ru":"Я я","uz":"Ya tovushi","ctx":"я (men) soʻzida","gr":"Й+А birikmasi, soʻz boshida Ya deb oʻqiladi."}]},{"id":2,"t":"Rus alifbosi: undoshlar","tr":"Согласные буквы","cat":"Noldan boshlash","lv":"basics","p":[{"id":911,"ru":"Б б","uz":"B tovushi","ctx":"брат (aka/uka) soʻzida","gr":"Oʻzbekcha B bilan bir xil talaffuz qilinadi."},{"id":912,"ru":"В в","uz":"V tovushi","ctx":"вода (suv) soʻzida","gr":"Pastki lab yuqori tishga tegib talaffuz qilinadi."},{"id":913,"ru":"Г г","uz":"G tovushi","ctx":"город (shahar) soʻzida","gr":"Qattiq G tovushi, oʻzbekcha G ga oʻxshaydi."},{"id":914,"ru":"Ж ж","uz":"J tovushi","ctx":"жизнь (hayot) soʻzida","gr":"Doim qattiq talaffuz qilinadi, yumshamaydi."},{"id":915,"ru":"Р р","uz":"Titroq R tovushi","ctx":"работа (ish) soʻzida","gr":"Til uchi tebranib talaffuz qilinadi."},{"id":916,"ru":"Х х","uz":"X tovushi","ctx":"хорошо (yaxshi) soʻzida","gr":"Tomoqdan chiquvchi X tovushi."},{"id":917,"ru":"Ь","uz":"Yumshatish belgisi","ctx":"мать (ona) soʻzida","gr":"Oʻzidan oldingi undoshni yumshatadi, alohida tovush emas."}]},{"id":3,"t":"Olmoshlar va boʻlish feʼli","tr":"Местоимения и быть","cat":"Noldan boshlash","lv":"basics","p":[{"id":921,"ru":"Я","uz":"Men","ctx":"Birinchi shaxs birlik","gr":"Doim bosh harf bilan yozilmaydi, faqat gap boshida."},{"id":922,"ru":"Ты","uz":"Sen","ctx":"Norasmiy muloqot","gr":"Yaqin doʻstlar va bolalar bilan ishlatiladi."},{"id":923,"ru":"Вы","uz":"Siz","ctx":"Rasmiy muloqot","gr":"Kattalar va notanishlar bilan ishlatiladi, koʻplik ham anglatadi."},{"id":924,"ru":"Он, она, оно","uz":"U (erkak, ayol, neytral)","ctx":"Uchinchi shaxs birlik","gr":"Rus tilida jins otlarga ham tegishli."},{"id":925,"ru":"Мы, они","uz":"Biz, ular","ctx":"Koʻplik olmoshlari","gr":"Mы=biz, они=ular."},{"id":926,"ru":"Я студент.","uz":"Men talabaman.","ctx":"Kasb yoki holatni aytish","gr":"Rus tilida hozirgi zamonda \\\"boʻlmoq\\\" feʼli tushiriladi."},{"id":927,"ru":"Это дом.","uz":"Bu uy.","ctx":"Buyumni koʻrsatish","gr":"Это=bu, jins va sonni oʻzgartirmaydi."}]},{"id":4,"t":"Oddiy gap qurish","tr":"Простые предложения","cat":"Noldan boshlash","lv":"basics","p":[{"id":931,"ru":"Да.","uz":"Ha.","ctx":"Rozilik","gr":"Eng qisqa javob."},{"id":932,"ru":"Нет.","uz":"Yoʻq.","ctx":"Rad etish","gr":"Eng qisqa inkor."},{"id":933,"ru":"Я не знаю.","uz":"Men bilmayman.","ctx":"Bilmaslikni bildirish","gr":"Не=emas/yoʻq, знаю=bilaman."},{"id":934,"ru":"Это хорошо.","uz":"Bu yaxshi.","ctx":"Fikr bildirish","gr":"Sifat gapning oxirida keladi."},{"id":935,"ru":"Это плохо.","uz":"Bu yomon.","ctx":"Salbiy fikr","gr":"плохо=yomon."},{"id":936,"ru":"У меня есть вопрос.","uz":"Savolim bor.","ctx":"Savol berishdan oldin","gr":"У меня есть=mening bor, vопрос=savol."},{"id":937,"ru":"Спасибо большое!","uz":"Katta rahmat!","ctx":"Chuqur minnatdorchilik","gr":"большое=katta, spasibo bilan birga ishlatiladi."}]},{"id":5,"t":"Salomlashish","tr":"Приветствие","cat":"Kundalik hayot","lv":"beginner","p":[{"id":1,"ru":"Здравствуйте!","uz":"Assalomu alaykum!","ctx":"Rasmiy salomlashish","gr":"Rasmiy shakl. Kattalar bilan ishlatiladi."},{"id":3,"ru":"Доброе утро!","uz":"Xayrli tong!","ctx":"Ertalab 12:00 gacha","gr":"Доброе=yaxshi, утро=tong."},{"id":4,"ru":"Добрый день!","uz":"Xayrli kun!","ctx":"Kunduzi 12:00-18:00","gr":"Добрый=yaxshi, день=kun."},{"id":5,"ru":"Добрый вечер!","uz":"Xayrli kech!","ctx":"18:00 dan keyin","gr":"вечер=kech."},{"id":6,"ru":"Как дела?","uz":"Ishlar qalay?","ctx":"Hol-ahvol so'rash","gr":"Как=qanday, дела=ishlar."},{"id":7,"ru":"Хорошо, спасибо.","uz":"Yaxshi, rahmat.","ctx":"Javob berish","gr":"Хорошо=yaxshi, спасибо=rahmat."},{"id":8,"ru":"А у вас?","uz":"Siz-chi?","ctx":"Qaytarib so'rash — odob","gr":"У вас=sizda. Qaytarib so'rash odob."},{"id":9,"ru":"До свидания!","uz":"Xayr!","ctx":"Rasmiy xayrlashish","gr":"До=gacha, свидания=uchrashuv."}]},{"id":6,"t":"Tanishish","tr":"Знакомство","cat":"Kundalik hayot","lv":"beginner","p":[{"id":11,"ru":"Меня зовут Али.","uz":"Mening ismim Ali.","ctx":"Ismni aytish","gr":"Меня=meni, зовут=chaqiradi."},{"id":12,"ru":"Как вас зовут?","uz":"Ismingiz nima?","ctx":"Rasmiy so'rash","gr":"вас=sizni (rasmiy)."},{"id":13,"ru":"Как тебя зовут?","uz":"Isming nima?","ctx":"Norasmiy so'rash","gr":"тебя=seni (yoshlar bilan)."},{"id":14,"ru":"Приятно познакомиться!","uz":"Tanishganimdan xursandman!","ctx":"Birinchi uchrashuv","gr":"Приятно=yoqimli, познакомиться=tanishmoq."},{"id":15,"ru":"Откуда вы?","uz":"Siz qayerdansiz?","ctx":"Kelib chiqishni so'rash","gr":"Откуда=qayerdan."},{"id":17,"ru":"Я живу в Ташкенте.","uz":"Men Toshkentda yashayman.","ctx":"Yashash joyi","gr":"живу=yashayman, в=da."}]},{"id":7,"t":"Sonlar 1-20","tr":"Числа 1-20","cat":"Kundalik hayot","lv":"beginner","p":[{"id":21,"ru":"Один, два, три.","uz":"Bir, ikki, uch.","ctx":"Asosiy sonlar 1-3","gr":"1=один, 2=два, 3=три."},{"id":26,"ru":"Двадцать.","uz":"Yigirma.","ctx":"20 soni","gr":"20=двадцать."},{"id":27,"ru":"Сколько вам нужно?","uz":"Sizga nechta kerak?","ctx":"Miqdor so'rash","gr":"Сколько=nechta, нужно=kerak."},{"id":28,"ru":"Мне нужно пять.","uz":"Menga besh kerak.","ctx":"Miqdor aytish","gr":"Мне=menga."}]},{"id":8,"t":"Vaqt va kunlar","tr":"Время и дни","cat":"Kundalik hayot","lv":"beginner","p":[{"id":29,"ru":"Который час?","uz":"Soat necha?","ctx":"Vaqt so'rash","gr":"Который=qaysi."},{"id":30,"ru":"Сейчас три часа.","uz":"Hozir soat uch.","ctx":"Vaqt aytish","gr":"Сейчас=hozir."},{"id":31,"ru":"Какой сегодня день?","uz":"Bugun haftaning kuni?","ctx":"Kun so'rash","gr":"Какой=qanday, сегодня=bugun."},{"id":32,"ru":"Сегодня понедельник.","uz":"Bugun dushanba.","ctx":"Kun aytish","gr":"понедельник=dushanba (haftaning birinchi kuni)."},{"id":33,"ru":"Завтра вторник.","uz":"Ertaga seshanba.","ctx":"Ertangi kun","gr":"Завтра=ertaga."},{"id":34,"ru":"Во сколько?","uz":"Soat nechada?","ctx":"Vaqt belgilash","gr":"Во=da (vaqt bilan)."},{"id":35,"ru":"В восемь утра.","uz":"Ertalab soat sakkizda.","ctx":"Aniq vaqt","gr":"утра=ertalabning."},{"id":36,"ru":"Каждый день.","uz":"Har kuni.","ctx":"Doimiylik","gr":"Каждый=har bir."}]},{"id":9,"t":"Oilaviy hayot","tr":"Семья","cat":"Kundalik hayot","lv":"beginner","p":[{"id":37,"ru":"У вас есть дети?","uz":"Farzandlaringiz bormi?","ctx":"Oilaviy holat so'rash","gr":"У вас есть=sizda bormi?"},{"id":38,"ru":"У меня двое детей.","uz":"Mening ikki farzandim bor.","ctx":"Javob berish","gr":"двое=ikki (kollektiv son)."},{"id":40,"ru":"Мы живём вместе.","uz":"Biz birga yashaymiz.","ctx":"Turmush tarzi","gr":"Мы=biz, вместе=birga."},{"id":41,"ru":"Я женат.","uz":"Men uylanganman.","ctx":"Oilaviy holat","gr":"Faqat erkaklar uchun. Ayollar: Я замужем."},{"id":42,"ru":"Бабушка и дедушка.","uz":"Buvi va buva.","ctx":"Qarindoshlar","gr":"и=va."},{"id":43,"ru":"У меня есть брат и сестра.","uz":"Mening aka/uka va opa/singilim bor.","ctx":"Qarindoshlar","gr":"брат=aka/uka, сестра=opa/singil."},{"id":44,"ru":"Семья — это важно.","uz":"Oila — bu muhim.","ctx":"Fikr bildirish","gr":"это=bu, важно=muhim."}]},{"id":10,"t":"Kayfiyat va holatlar","tr":"Настроение","cat":"Kundalik hayot","lv":"beginner","p":[{"id":45,"ru":"Я рад!","uz":"Men xursandman!","ctx":"Hursandchilik","gr":"рад=xursand (erkak). рада=xursand (ayol)."},{"id":47,"ru":"Я устал.","uz":"Men charchadim.","ctx":"Charchash","gr":"устал=charchadi (erkak). устала=charchadi (ayol)."},{"id":48,"ru":"Мне холодно.","uz":"Menga sovuq.","ctx":"Sovuq hissi","gr":"Sovuq his qilish."},{"id":49,"ru":"Мне жарко.","uz":"Menga issiq.","ctx":"Issiq hissi","gr":"Issiq his qilish."},{"id":50,"ru":"Я не понимаю.","uz":"Men tushunmayapman.","ctx":"Tushunmaslik","gr":"понимаю=tushunaman. Juda muhim!"},{"id":51,"ru":"Понятно.","uz":"Tushunarli.","ctx":"Tushunganni bildirish","gr":"Qisqa va samarali javob."},{"id":52,"ru":"Извините, повторите, пожалуйста.","uz":"Kechirasiz, qaytadan ayting.","ctx":"Qayta so'rash","gr":"3 ta muhim so'z."}]},{"id":11,"t":"Ob-havo","tr":"Погода","cat":"Kundalik hayot","lv":"beginner","p":[{"id":53,"ru":"Какая сегодня погода?","uz":"Bugun ob-havo qanday?","ctx":"Ob-havo so'rash","gr":"Какая=qanday, погода=ob-havo."},{"id":54,"ru":"Сегодня тепло.","uz":"Bugun issiq.","ctx":"Issiq kun","gr":"тепло=issiq (harorat)."},{"id":55,"ru":"Сегодня холодно.","uz":"Bugun sovuq.","ctx":"Sovuq kun","gr":"холодно=sovuq."},{"id":58,"ru":"Светит солнце.","uz":"Quyosh chiqmoqda.","ctx":"Quyoshli kun","gr":"Светит=yoritmoqda."},{"id":60,"ru":"Оденьтесь потеплее.","uz":"Iliqroq kiyining.","ctx":"Maslahat","gr":"Оденьтесь=kiying (buyruq shakli)."}]},{"id":12,"t":"Ovqatlanish va ichimliklar","tr":"Еда и напитки","cat":"Ovqatlanish","lv":"beginner","p":[{"id":61,"ru":"Я хочу есть.","uz":"Men ovqat yemoqchiman.","ctx":"Istak bildirish","gr":"хочу=xohlaman, есть=yemoq."},{"id":62,"ru":"Я хочу пить.","uz":"Men ichmoqchiman.","ctx":"Istak bildirish","gr":"пить=ichmoq."},{"id":63,"ru":"Дайте мне воды.","uz":"Menga suv bering.","ctx":"Iltimos","gr":"Дайте=bering (buyruq)."},{"id":64,"ru":"Чай, пожалуйста.","uz":"Choy, iltimos.","ctx":"Buyurtma","gr":"чай=choy."},{"id":65,"ru":"Кофе с молоком.","uz":"Sutli qahva.","ctx":"Buyurtma","gr":"с молоком=sut bilan."},{"id":66,"ru":"Это очень вкусно!","uz":"Bu juda mazali!","ctx":"Maqtov","gr":"очень=juda, вкусно=mazali."},{"id":68,"ru":"Сколько стоит?","uz":"Bu qancha turadi?","ctx":"Narx so'rash","gr":"Сколько=qancha, стоит=turadi."}]},{"id":13,"t":"Asosiy harakatlar","tr":"Основные действия","cat":"Kundalik hayot","lv":"beginner","p":[{"id":69,"ru":"Я иду на работу.","uz":"Men ishga ketyapman.","ctx":"Harakat","gr":"иду=ketyapman, на=ga (yo'nalish)."},{"id":70,"ru":"Я пришёл домой.","uz":"Men uyga keldim.","ctx":"Harakat","gr":"пришёл=keldim (erkak). пришла=keldim (ayol)."},{"id":71,"ru":"Он читает книгу.","uz":"U kitob o'qiyapti.","ctx":"Hozirgi vaqt","gr":"читает=o'qiyapti. Hozirgi vaqt: -ает/-яет."},{"id":72,"ru":"Подождите, пожалуйста.","uz":"Iltimos, kuting.","ctx":"Kutishni so'rash","gr":"Подождите=kuting (buyruq)."},{"id":73,"ru":"Помогите, пожалуйста.","uz":"Iltimos, yordam bering.","ctx":"Yordam so'rash","gr":"Eng muhim so'z!"},{"id":74,"ru":"Я согласен.","uz":"Men roziman.","ctx":"Rozilik bildirish","gr":"согласен=roziman (erkak)."},{"id":75,"ru":"Где находится туалет?","uz":"Hojatxona qayerda?","ctx":"Joy so'rash","gr":"Где=qayerda, находится=joylashgan."}]},{"id":14,"t":"Restoranda ovqatlanish","tr":"В ресторане","cat":"Ovqatlanish","lv":"elementary","p":[{"id":93,"ru":"Столик на двоих, пожалуйста.","uz":"Ikkilik stol, iltimos.","ctx":"Stol so'rash","gr":"Столик=kichik stol, двоих=ikki kishi."},{"id":94,"ru":"Меню, пожалуйста.","uz":"Menyu bering, iltimos.","ctx":"Menyu so'rash","gr":"Menyu=ruscha so'z."},{"id":95,"ru":"Что вы рекомендуете?","uz":"Nima tavsiya qilasiz?","ctx":"Maslahat so'rash","gr":"рекомендуете=tavsiya qilasiz."},{"id":96,"ru":"Я хочу заказать.","uz":"Men buyurtma bermoqchiman.","ctx":"Buyurtma berish","gr":"заказать=buyurtma bermoq."},{"id":97,"ru":"Без сахара, пожалуйста.","uz":"Shakarsiz, iltimos.","ctx":"Shaxsiy so'rov","gr":"сахара=shakarning."},{"id":98,"ru":"Счёт, пожалуйста.","uz":"Hisob, iltimos.","ctx":"Hisob so'rash","gr":"счёт=hisob."},{"id":99,"ru":"Было очень вкусно!","uz":"Juda mazali edi!","ctx":"Maqtov","gr":"очень=juda, вкусно=mazali."}]},{"id":15,"t":"Taksi buyurtma berish","tr":"Заказ такси","cat":"Transport","lv":"elementary","p":[{"id":101,"ru":"Вы такси?","uz":"Siz taksimisiz?","ctx":"Tekshirish","gr":"Такси=ruscha so'z."},{"id":102,"ru":"Мне нужно на вокзал.","uz":"Menga vokzalga kerak.","ctx":"Manzil aytish","gr":"на=ga (yo'nalish)."},{"id":104,"ru":"Поехали!","uz":"Yurdik!","ctx":"Boshlash","gr":"Mashhur so'z — kosmonavtlar ham aytgan!"},{"id":107,"ru":"Сдачи не нужно.","uz":"Qoldiq kerak emas.","ctx":"Choychaqa","gr":"сдачи=qoldiqning."},{"id":108,"ru":"Подождите минуту.","uz":"Bir daqiqa kuting.","ctx":"Kutish","gr":"минуту=bir daqiqa."}]},{"id":16,"t":"Jamoa transporti","tr":"Общественный транспорт","cat":"Transport","lv":"elementary","p":[{"id":109,"ru":"Где остановка автобуса?","uz":"Avtobus bekat qayerda?","ctx":"Bekat so'rash","gr":"остановка=bekat."},{"id":110,"ru":"Куда идёт этот автобус?","uz":"Bu avtobus qayerga boradi?","ctx":"Yo'nalish so'rash","gr":"Куда=qayerga, идёт=bormoqda."},{"id":111,"ru":"Где станция метро?","uz":"Metro stantsiyasi qayerda?","ctx":"Metro so'rash","gr":"станция=stantsiya."},{"id":112,"ru":"Один билет, пожалуйста.","uz":"Bitta chipta, iltimos.","ctx":"Chipta sotib olish","gr":"билет=chipta."},{"id":113,"ru":"Два билета.","uz":"Ikki dona chipta.","ctx":"Chipta sotib olish","gr":"Ikkitadan."},{"id":114,"ru":"Где купить билет?","uz":"Chiptani qayerdan sotib olish mumkin?","ctx":"Chipta joyi","gr":"купить=sotib olmoq."},{"id":115,"ru":"Мне выходить.","uz":"Men tushishim kerak.","ctx":"Tushish","gr":"выходить=tushmoq."},{"id":116,"ru":"Откройте дверь, пожалуйста.","uz":"Eshikni oching, iltimos.","ctx":"Eshik","gr":"Откройте=oching, дверь=eshik."}]},{"id":17,"t":"Klinikada","tr":"В поликлинике","cat":"Salomatlik","lv":"intermediate","p":[{"id":117,"ru":"Запишите меня к терапевту.","uz":"Meni terapevtga yozing.","ctx":"Navbat olish","gr":"Запишите=yozing, терапевт=umumiy shifokor."},{"id":119,"ru":"У меня температура 38.","uz":"Menda isitma 38.","ctx":"Isitma","gr":"температура=isitma."},{"id":121,"ru":"Я аллергик.","uz":"Menda allergiya bor.","ctx":"Tibbiy ma'lumot","gr":"аллергик=allergiyasi bor."},{"id":122,"ru":"Два раза в день.","uz":"Kuniga ikki marta.","ctx":"Dozalash","gr":"раза=marta."},{"id":123,"ru":"Нужен рецепт.","uz":"Retsept kerak.","ctx":"Retsept","gr":"рецепт=retsept."},{"id":124,"ru":"Сколько стоит приём?","uz":"Qabul qancha turadi?","ctx":"Narx","gr":"приём=qabul."}]},{"id":18,"t":"Aptekada","tr":"В аптеке","cat":"Salomatlik","lv":"intermediate","p":[{"id":126,"ru":"От простуды.","uz":"Shamollashdan.","ctx":"Dori turi","gr":"простуды=shamollashning."},{"id":127,"ru":"От температуры.","uz":"Isitmadan.","ctx":"Dori turi","gr":"температуры=isitmaning."},{"id":129,"ru":"Как принимать?","uz":"Qanday ichish kerak?","ctx":"Qo'llanma","gr":"принимать=qabul qilmoq/ichmoq."},{"id":130,"ru":"Три раза в день.","uz":"Kuniga uch marta.","ctx":"Qo'llanma","gr":"Kuniga 3 marta."},{"id":131,"ru":"По рецепту врача.","uz":"Shifokor retsepti bilan.","ctx":"Retsept bilan","gr":"врача=shifokorning."},{"id":132,"ru":"Проверьте срок годности.","uz":"Yaroqlilik muddatini tekshiring.","ctx":"Muhim","gr":"срок годности=yaroqlilik muddati."}]},{"id":19,"t":"Mehmonxonada","tr":"В гостинице","cat":"Turar joy","lv":"intermediate","p":[{"id":134,"ru":"Номер на одного.","uz":"Bir kishilik xona.","ctx":"Xona turi","gr":"на одного=bir kishiga."},{"id":135,"ru":"Сколько стоит за ночь?","uz":"Bir kechaga qancha?","ctx":"Narx so'rash","gr":"за ночь=bir kecha uchun."},{"id":136,"ru":"Завтрак включён?","uz":"Nonushta kiritilganmi?","ctx":"Xizmat so'rash","gr":"включён=kiritilgan."},{"id":137,"ru":"Во сколько заселение?","uz":"Soat nechada joylashish mumkin?","ctx":"Kirish vaqti","gr":"заселение=joylashish."},{"id":138,"ru":"Во сколько выселение?","uz":"Soat nechada chiqish kerak?","ctx":"Chiqish vaqti","gr":"выселение=chiqish."},{"id":139,"ru":"Можно Wi-Fi пароль?","uz":"Wi-Fi paroli bormi?","ctx":"Internet","gr":"пароль=parol."},{"id":140,"ru":"Уберите номер, пожалуйста.","uz":"Xonani tozalang, iltimos.","ctx":"Tozalash","gr":"Уберите=tozalang."}]},{"id":20,"t":"Bankda pul ishlari","tr":"В банке","cat":"Moliya","lv":"intermediate","p":[{"id":141,"ru":"Какой курс доллара?","uz":"Dollar kursi qanday?","ctx":"Kurs so'rash","gr":"курс=kurs."},{"id":142,"ru":"Снять наличные.","uz":"Naqd pul yechmoqchiman.","ctx":"Pul yechish","gr":"Снять=yechmoq."},{"id":143,"ru":"Положить на счёт.","uz":"Hisobga kiritmoqchiman.","ctx":"Pul kiritish","gr":"Положить=qo'ymoq."},{"id":144,"ru":"Нужен паспорт.","uz":"Pasport kerak.","ctx":"Hujjat","gr":"паспорт=ruscha so'z."},{"id":145,"ru":"Какая комиссия?","uz":"Komissiya qancha?","ctx":"Komissiya","gr":"комиссия=kommisya."},{"id":146,"ru":"Банкомат рядом есть?","uz":"Yaqinda bankomat bormi?","ctx":"Bankomat","gr":"банкомат=bankomat."},{"id":147,"ru":"Карта не работает.","uz":"Karta ishlamayapti.","ctx":"Muammo","gr":"не работает=ishlamayapti."}]},{"id":21,"t":"Favqulodda vaziyatlar","tr":"Экстренные ситуации","cat":"Xavfsizlik","lv":"intermediate","p":[{"id":149,"ru":"Помогите!","uz":"Yordam!","ctx":"Favqulodda","gr":"Eng muhim so'z!"},{"id":150,"ru":"Вызовите полицию!","uz":"Politsiyani chaqiring!","ctx":"Favqulodda","gr":"Вызовите=chaqiring."},{"id":151,"ru":"Вызовите скорую помощь!","uz":"Tez yordam chaqiring!","ctx":"Tibbiy yordam","gr":"скорую=tez, помощью=yordam."},{"id":154,"ru":"Где полицейский участок?","uz":"Politsiya bo'limi qayerda?","ctx":"Joy so'rash","gr":"участок=bo'lim."},{"id":155,"ru":"Где посольство?","uz":"Elchixona qayerda?","ctx":"Elchixona","gr":"посольство=elchixona."},{"id":156,"ru":"Не двигайтесь!","uz":"Qimirlamang!","ctx":"Ko'rsatma","gr":"Не двигайтесь=qimirlamang."}]},{"id":22,"t":"Aeroport va samolyot","tr":"В аэропорту","cat":"Transport","lv":"upper","p":[{"id":164,"ru":"Вот мой паспорт.","uz":"Mana mening pasportim.","ctx":"Hujjat taqdim etish","gr":"Вот=mana."},{"id":165,"ru":"Место у окна, пожалуйста.","uz":"Deraza yonidagi joyni bering, iltimos.","ctx":"Joy tanlash","gr":"у окна=deraza yonida."},{"id":166,"ru":"Сколько багажа можно?","uz":"Yuk qancha olish mumkin?","ctx":"Yuk chegarasi","gr":"багажа=yukning."},{"id":167,"ru":"Рейс задерживается.","uz":"Reys kechiktirilmoqda.","ctx":"Kechikish","gr":"рейс=reys, задерживается=kechiktirilmoqda."},{"id":168,"ru":"Где получить багаж?","uz":"Yukni qayerdan olish mumkin?","ctx":"Yuk olish","gr":"получить=olish."},{"id":169,"ru":"Мой багаж потерялся.","uz":"Mening yukim yo'qoldi.","ctx":"Muammo","gr":"потерялся=yo'qoldi."},{"id":170,"ru":"Таможенный досмотр.","uz":"Bojxona tekshiruvi.","ctx":"Tekshiruv","gr":"таможенный=bojxona."}]},{"id":23,"t":"Ish va kasb","tr":"Работа","cat":"Ish","lv":"upper","p":[{"id":171,"ru":"Я ищу работу.","uz":"Men ish qidiryapman.","ctx":"Ish qidirish","gr":"ищу=qidiryapman, работу=ishni."},{"id":172,"ru":"Какая зарплата?","uz":"Maosh qancha?","ctx":"Maosh so'rash","gr":"зарплата=maosh."},{"id":173,"ru":"Пять дней в неделю.","uz":"Haftasiga besh kun.","ctx":"Ish vaqti","gr":"дней=kunning, неделю=haftaning."},{"id":176,"ru":"Больничный.","uz":"Kasallik varaqasi.","ctx":"Kasallik","gr":"больничный=kasallik varaqasi."},{"id":177,"ru":"Собеседование.","uz":"Suhbat (intervyu).","ctx":"Intervyu","gr":"собеседование=suhbat."},{"id":178,"ru":"Резюме.","uz":"Rezyume.","ctx":"Hujjat","gr":"Резюме=fransuzcha so'z."}]},{"id":24,"t":"Kompyuter va texnologiya","tr":"Компьютер","cat":"Texnologiya","lv":"upper","p":[{"id":179,"ru":"Не работает интернет.","uz":"Internet ishlamayapti.","ctx":"Muammo","gr":"не работает=ishlamayapti."},{"id":180,"ru":"Компьютер завис.","uz":"Kompyuter tiqilib qoldi.","ctx":"Muammo","gr":"завис=tiqilib qoldi."},{"id":181,"ru":"Нужна программа.","uz":"Dastur kerak.","ctx":"Dastur","gr":"программа=dastur."},{"id":182,"ru":"Пароль не подходит.","uz":"Parol mos kelmayapti.","ctx":"Muammo","gr":"не подходит=mos kelmayapti."},{"id":183,"ru":"Скачайте файл.","uz":"Faylni yuklab oling.","ctx":"Yuklab olish","gr":"Скачайте=yuklab oling."},{"id":184,"ru":"Отправьте на электронную почту.","uz":"Elektron pochtangizga yuboring.","ctx":"Email","gr":"электронную почту=email."},{"id":185,"ru":"Какой у вас адрес электронной почты?","uz":"Email manzilingiz qanday?","ctx":"Email so'rash","gr":"адрес=manzil."},{"id":186,"ru":"Экран не включается.","uz":"Ekran yoqilmayapti.","ctx":"Muammo","gr":"Экран=ekran, не включается=yoqilmayapti."}]},{"id":25,"t":"Bayramlar va tilaklar","tr":"Праздники","cat":"Kundalik hayot","lv":"upper","p":[{"id":195,"ru":"С Новым годом!","uz":"Yangi yil bilan!","ctx":"Bayram","gr":"Новым годом=yangi yil."},{"id":197,"ru":"С праздником!","uz":"Bayram bilan!","ctx":"Bayram tabrigi","gr":"с праздником=bayram bilan."},{"id":198,"ru":"Всего хорошего!","uz":"Yaxshilar tilayman!","ctx":"Tilak","gr":"Всего=hammasi, хорошего=yaxshilar."},{"id":199,"ru":"Удачи!","uz":"Omad!","ctx":"Tilak","gr":"Удачи=omad."},{"id":202,"ru":"Мне пора.","uz":"Menga vaqt bo'ldi.","ctx":"Ketish","gr":"пора=vaqt bo'ldi."}]}];
+var DATA_VERSION=2;
+var S={streak:0,lastDay:'',done:[],words:[],ver:DATA_VERSION};
+try{var s=localStorage.getItem('baza');if(s)S=JSON.parse(s);}catch(e){}
+if(S.ver!==DATA_VERSION){S={streak:S.streak||0,lastDay:S.lastDay||'',done:[],words:S.words||[],ver:DATA_VERSION};}
+var TG = (window.Telegram && window.Telegram.WebApp) ? window.Telegram.WebApp : null;
+if (TG) { try { TG.ready(); TG.expand(); } catch(e){} }
+
+function save(){
+  try{localStorage.setItem('baza',JSON.stringify(S));}catch(e){}
+  if (TG && TG.initData) {
+    fetch('/api/progress', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ initData: TG.initData, streak: S.streak, lastDay: S.lastDay, done: S.done, words: S.words })
+    }).catch(function(){});
+  }
+}
+function xpTotal(){var x=0;for(var i=0;i<S.words.length;i++)x+=S.words[i].c*10;x+=S.done.length*50;return x;}
+function today(){return new Date().toISOString().split('T')[0];}
+function go(id){var p=document.querySelectorAll('.page');for(var i=0;i<p.length;i++)p[i].classList.remove('active');document.getElementById(id).classList.add('active');}
+function setNav(n){for(var i=0;i<4;i++){var b=document.getElementById('nav'+i);if(b){var on=i===n;b.style.color=on?'#005027':'#516152';b.style.fontWeight=on?'700':'normal';b.style.background=on?'#2ecc71':'none';b.style.borderRadius=on?'999px':'0';b.style.margin=on?'4px 6px':'0';}}}
+function hesc(s){return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>');}
+
+function renderHome(){
+  var t=today();
+  if(S.lastDay!==t){var y=new Date(Date.now()-86400000).toISOString().split('T')[0];S.streak=S.lastDay===y?S.streak+1:1;S.lastDay=t;save();}
+  document.getElementById('streakNum').textContent=S.streak;
+  document.getElementById('streakBox').style.display=S.streak>0?'inline':'none';
+  document.getElementById('xpNum').textContent=xpTotal();
+  document.getElementById('wordsNum').textContent=S.words.length;
+  document.getElementById('lessonsNum').textContent=S.done.length;
+  var pct=L.length>0?Math.round(S.done.length/L.length*100):0;
+  document.getElementById('progText').textContent=S.done.length+' / '+L.length+' dars';
+  document.getElementById('progBar').style.width=pct+'%';
+  var next=null;for(var i=0;i<L.length;i++){if(S.done.indexOf(L[i].id)===-1){next=L[i];break;}}
+  var w=document.getElementById('ctaWrap');
+  if(next){w.innerHTML='<button id="ctaBtn" class="squishy" style="width:100%;background:#2ecc71;color:#005027;border:none;border-radius:16px;padding:22px;font-size:19px;font-weight:800;box-shadow:0 4px 0 0 #005027">📚 Darsni boshlash: '+hesc(next.t)+'</button>';document.getElementById('ctaBtn').onclick=function(){startLesson(next.id);};}
+  else{w.innerHTML='<button style="width:100%;background:#8a9a8b;color:#fff;border:none;border-radius:24px;padding:22px;font-size:19px;font-weight:700;cursor:pointer">🏆 Barcha darslar tugatildi!</button>';}
+  var h='';for(var i=0;i<Math.min(5,L.length);i++){var l=L[i];var d=S.done.indexOf(l.id)!==-1;h+='<div class="lesson-card" data-id="'+l.id+'" style="background:#fff;border-radius:24px;padding:16px;border:1px solid #d6dcd6;display:flex;align-items:center;gap:14px;cursor:pointer;margin-bottom:10px"><div style="width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:'+(d?'#dcfce7':'#e7f8ee')+'">'+(d?'✅':l.id)+'</div><div style="flex:1"><p style="font-size:15px;font-weight:600">'+hesc(l.t)+'</p><p style="font-size:13px;color:#516152">'+hesc(l.cat)+' · '+l.p.length+" so'z</p></div><span style='color:#8a9a8b;font-size:18px'>›</span></div>";}
+  if(L.length>5)h+='<div id="viewAllBtn" style="text-align:center;color:#006d37;font-weight:600;padding:12px;cursor:pointer">Barcha '+L.length+" darsni ko'rish →</div>";
+  document.getElementById('homeList').innerHTML=h;
+  var cards=document.querySelectorAll('.lesson-card');for(var i=0;i<cards.length;i++){cards[i].onclick=(function(id){return function(){startLesson(id);};})(parseInt(cards[i].dataset.id));}
+  var vab=document.getElementById('viewAllBtn');if(vab)vab.onclick=function(){go('lessons');renderList();setNav(1);};
+}
+
+function renderList(){
+  var lvls=[{k:'basics',l:"🔤 Noldan boshlash"},{k:'beginner',l:"🌱 Boshlang'ich"},{k:'elementary',l:"📗 Qo'shimcha"},{k:'intermediate',l:"📙 O'rta"},{k:'upper',l:"📕 Yuqori"}];
+  var q=(document.getElementById('searchBox').value||'').toLowerCase();
+  var h='';for(var li=0;li<lvls.length;li++){var lv=lvls[li];var items=[];for(var i=0;i<L.length;i++){if(L[i].lv===lv.k)items.push(L[i]);}
+  if(q){var f=[];for(var i=0;i<items.length;i++){if((items[i].t+' '+items[i].tr+' '+items[i].cat).toLowerCase().indexOf(q)!==-1)f.push(items[i]);}items=f;}
+  if(!items.length)continue;
+  h+='<div style="margin-bottom:20px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:10px"><span style="font-size:16px;font-weight:700;color:#191c1d">'+lv.l+'</span><span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;background:#f2f4f4;color:#3d4a3e">'+items.length+' dars</span></div>';
+  for(var i=0;i<items.length;i++){var l=items[i];var d=S.done.indexOf(l.id)!==-1;h+='<div class="lesson-card" data-id="'+l.id+'" style="background:#fff;border-radius:24px;padding:16px;border:1px solid #d6dcd6;display:flex;align-items:center;gap:14px;cursor:pointer;margin-bottom:10px"><div style="width:44px;height:44px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:'+(d?'#dcfce7':'#e7f8ee')+'">'+(d?'✅':l.id)+'</div><div style="flex:1"><p style="font-size:15px;font-weight:600">'+hesc(l.t)+'</p><p style="font-size:13px;color:#516152">'+hesc(l.tr)+' · '+hesc(l.cat)+' · '+l.p.length+" so'z</p></div><span style='color:#8a9a8b;font-size:18px'>›</span></div>";}
+  h+='</div>';}
+  document.getElementById('listContent').innerHTML=h;
+  var cards=document.querySelectorAll('#listContent .lesson-card');for(var i=0;i<cards.length;i++){cards[i].onclick=(function(id){return function(){startLesson(id);};})(parseInt(cards[i].dataset.id));}
+}
+
+function renderWords(){
+  var c=document.getElementById('wordsContent');
+  if(!S.words.length){c.innerHTML='<div style="text-align:center;padding:60px 16px;color:#516152"><p style="font-size:40px;margin-bottom:12px">📝</p><p style="font-size:15px">Hali so\'z o\'rganilmagan.</p><p style="font-size:13px;margin-top:6px">Darslarni boshlang va so\'zlaringiz shu yerda paydo bo\'ladi!</p></div>';return;}
+  var sorted=S.words.slice().sort(function(a,b){return b.a-a.a;});
+  var h='<div style="margin-bottom:16px;font-size:13px;color:#516152">Jami: <b style="color:#191c1d">'+sorted.length+'</b> so\'z</div>';
+  for(var i=0;i<sorted.length;i++){
+    var w=sorted[i];
+    var pct=w.a>0?Math.round(w.c/w.a*100):0;
+    var color=pct>=70?'#006d37':(pct>=40?'#944a00':'#ba1a1a');
+    h+='<div style="background:#fff;border-radius:16px;padding:14px 16px;border:1px solid #d6dcd6;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">';
+    h+='<div><p style="font-size:16px;font-weight:600">'+hesc(w.ru)+'</p><p style="font-size:13px;color:#516152;margin-top:2px">🇺🇿 '+hesc(w.uz)+'</p></div>';
+    h+='<div style="text-align:right;flex-shrink:0;margin-left:12px"><p style="font-size:15px;font-weight:700;color:'+color+'">'+pct+'%</p><p style="font-size:11px;color:#8a9a8b">'+w.c+'/'+w.a+'</p></div>';
+    h+='</div>';
+  }
+  c.innerHTML=h;
+}
+
+var BOTS=[{n:'Malika',x:3120,s:22},{n:'Jasur',x:2850,s:18},{n:'Sardor',x:2400,s:15},{n:'Laylo',x:1980,s:12},{n:'Doniyor',x:1720,s:9},{n:'Nigora',x:1450,s:7},{n:'Madina',x:1210,s:5},{n:'Bekzod',x:980,s:3},{n:'Kamola',x:730,s:2}];
+async function renderRank(){
+  var myXp=xpTotal();
+  document.getElementById('rankMyXp').textContent=myXp;
+  var all=null;
+  if (TG && TG.initData) {
+    try{
+      var r=await fetch('/api/leaderboard');
+      var d=await r.json();
+      if(r.ok && d.leaderboard && d.leaderboard.length){
+        var myId = (TG.initDataUnsafe && TG.initDataUnsafe.user) ? TG.initDataUnsafe.user.id : null;
+        all=d.leaderboard.map(function(u){return {n:u.first_name||'Foydalanuvchi',x:u.xp,s:u.streak,me:(myId!==null && u.tg_id===myId)};});
+        if(!all.some(function(u){return u.me;})) all.push({n:'Siz',x:myXp,s:S.streak,me:true});
+      }
+    }catch(e){}
+  }
+  if(!all){
+    all=BOTS.map(function(b){return{n:b.n,x:b.x,s:b.s,me:false};});
+    all.push({n:'Siz',x:myXp,s:S.streak,me:true});
+  }
+  all.sort(function(a,b){return b.x-a.x;});
+  var medals=['#FFD700','#C0C0C0','#CD7F32'];
+  var top3=all.slice(0,3);
+  var order=[1,0,2]; // silver, gold, bronze visual order
+  var ph='<div style="display:flex;align-items:flex-end;justify-content:center;gap:10px;margin-bottom:20px;padding-top:16px">';
+  for(var oi=0;oi<order.length;oi++){
+    var idx=order[oi];if(!top3[idx])continue;var u=top3[idx];var big=idx===0;
+    var medal=idx===0?'🥇':(idx===1?'🥈':'🥉');
+    ph+='<div style="text-align:center;flex:1;'+(big?'transform:scale(1.12) translateY(-6px)':'')+'">';
+    ph+='<div style="font-size:'+(big?'32px':'24px')+'">'+medal+'</div>';
+    ph+='<div style="width:'+(big?'56px':'44px')+';height:'+(big?'56px':'44px')+';border-radius:999px;background:'+(u.me?'#2ecc71':'#e6e8e9')+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:'+(big?'22px':'17px')+';color:'+(u.me?'#005027':'#3d4a3e')+';margin:2px auto"> '+hesc(u.n.charAt(0))+'</div>';
+    ph+='<p style="font-size:13px;font-weight:700;margin-top:4px;'+(u.me?'color:#006d37':'')+'">'+hesc(u.n)+'</p>';
+    ph+='<p style="font-size:11px;color:#006d37;font-weight:700">'+u.x+' XP</p>';
+    ph+='</div>';
+  }
+  ph+='</div>';
+  var lh='';
+  for(var i=3;i<all.length;i++){
+    var u=all[i];
+    var meStyle=u.me?'background:#e7f8ee;border:2px solid #2ecc71':'background:#fff;border:1px solid #d6dcd6';
+    lh+='<div style="'+meStyle+';border-radius:16px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px">';
+    lh+='<div style="width:24px;font-weight:800;color:#516152">'+(i+1)+'</div>';
+    lh+='<div style="width:36px;height:36px;border-radius:999px;background:#e6e8e9;display:flex;align-items:center;justify-content:center;font-weight:800;color:#3d4a3e">'+hesc(u.n.charAt(0))+'</div>';
+    lh+='<div style="flex:1"><p style="font-size:14px;font-weight:700">'+hesc(u.n)+(u.me?' <span style="font-size:10px;background:#006d37;color:#fff;padding:2px 6px;border-radius:999px;vertical-align:middle">SIZ</span>':'')+'</p>';
+    lh+='<p style="font-size:11px;color:#8a9a8b">🔥 '+u.s+' kun</p></div>';
+    lh+='<div style="text-align:right"><p style="font-weight:800;color:#006d37;font-size:14px">'+u.x+'</p><p style="font-size:9px;color:#8a9a8b;font-weight:700">XP</p></div>';
+    lh+='</div>';
+  }
+  document.getElementById('rankContent').innerHTML=ph+'<div>'+lh+'</div>';
+}
+
+var curL=null,curIdx=0,ok=0,bad=0;
+function startLesson(id){curL=null;for(var i=0;i<L.length;i++){if(L[i].id===id){curL=L[i];break;}}if(!curL)return;curIdx=0;ok=0;bad=0;go('lesson');showWord();}
+
+function showWord(){
+  if(!curL||curIdx>=curL.p.length)return;
+  var p=curL.p[curIdx];
+  document.getElementById('lTitle').textContent=curL.t;
+  document.getElementById('lStep').textContent=(curIdx+1)+'/'+curL.p.length;
+  document.getElementById('lBar').style.width=((curIdx+1)/curL.p.length*100)+'%';
+  var c=document.getElementById('content');
+  var h='<div style="background:#fff;border-radius:24px;padding:28px 20px;border:1px solid #d6dcd6;text-align:center;margin-bottom:16px">';
+  h+='<p style="font-size:28px;font-weight:700;line-height:1.3;margin-bottom:12px">'+hesc(p.ru)+'</p>';
+  h+='<p style="font-size:20px;color:#3d4a3e;font-weight:500;padding-top:12px;border-top:1px solid #f2f4f4">🇺🇿 '+hesc(p.uz)+'</p>';
+  h+='<p style="font-size:13px;color:#8a9a8b;margin-top:8px;font-style:italic">💬 '+hesc(p.ctx)+'</p>';
+  h+='<div style="background:#fff9e0;border-radius:12px;padding:12px;margin-top:12px;text-align:left;font-size:13px;color:#6f5900">📝 <b>Grammatika:</b> '+hesc(p.gr)+'</div></div>';
+  h+='<div style="background:#fff;border-radius:16px;padding:16px;border:1px solid #d6dcd6;margin-bottom:12px">';
+  h+='<p style="font-size:12px;font-weight:600;color:#3d4a3e;margin-bottom:8px">🇷🇺 Ruscha yozing:</p>';
+  h+='<input id="wordInput" placeholder="Ruscha yozing..." autocomplete="off" spellcheck="false" style="width:100%;padding:16px;border:2px solid #d6dcd6;border-radius:14px;font-size:22px;font-weight:600;text-align:center;outline:none"></div>';
+  h+='<div id="resultArea"></div>';
+  h+='<button id="checkBtn" class="squishy" style="width:100%;background:#2ecc71;color:#005027;border:none;border-radius:16px;padding:22px;font-size:20px;font-weight:800;display:block;box-shadow:0 4px 0 0 #005027">✅ Tekshirish</button>';
+  c.innerHTML=h;
+  document.getElementById('checkBtn').addEventListener('click',doCheck);
+  document.getElementById('wordInput').addEventListener('keydown',function(e){if(e.key==='Enter')doCheck();});
+  setTimeout(function(){var inp=document.getElementById('wordInput');if(inp)inp.focus();},200);
+}
+
+function lev(a,b){var m=a.length,n=b.length,dp=[];for(var i=0;i<=m;i++){dp[i]=[i];}for(var j=0;j<=n;j++){dp[0][j]=j;}for(var i=1;i<=m;i++){for(var j=1;j<=n;j++){dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);}}return dp[m][n];}
+function scoreAns(a,b){try{var na=a.toLowerCase().replace(/[^a-z0-9Ѐ-ӿs]/g,'').trim();var nb=b.toLowerCase().replace(/[^a-z0-9Ѐ-ӿs]/g,'').trim();if(na===nb)return 100;if(!na||!nb)return 0;var d=lev(na,nb),mx=Math.max(na.length,nb.length);return Math.round(((mx-d)/mx)*100);}catch(e){return 0;}}
+
+function doCheck(){
+  if(!curL||curIdx>=curL.p.length)return;
+  var p=curL.p[curIdx];var inp=document.getElementById('wordInput');if(!inp)return;
+  var val=inp.value.trim();if(!val){inp.style.borderColor='#ba1a1a';inp.focus();return;}
+  var s=scoreAns(p.ru,val);var pass=s>=60;
+  inp.disabled=true;inp.style.borderColor=pass?'#2ecc71':'#ba1a1a';inp.style.background=pass?'#e7f8ee':'#ffdad6';
+  if(pass){ok++;recWord(p,true);}else{bad++;recWord(p,false);}
+  var isLast=curIdx>=curL.p.length-1;
+  var r='<div style="border-radius:16px;padding:20px;text-align:center;border:2px solid;margin-top:12px;'+(pass?'background:#e7f8ee;border-color:#8ee6ac':'background:#ffdad6;border-color:#ffb4ab')+'">';
+  r+='<p style="font-size:40px;margin-bottom:4px">'+(pass?'🎉':'🔄')+'</p>';
+  r+='<p style="font-size:18px;font-weight:700;color:'+(pass?'#005027':'#93000a')+'">'+(pass?"To'g'ri! "+s+"%":"Xato ("+s+"%)")+'</p>';
+  if(!pass){r+='<div style="background:#fff;border-radius:12px;padding:10px;margin-top:8px;text-align:left;font-size:13px"><p style="color:#516152">Siz: <b>'+hesc(val)+'</b></p><p style="color:#516152;margin-top:4px">To\'g\'ri: <b style="color:#005027">'+hesc(p.ru)+'</b></p></div>';}
+  r+='</div>';
+  r+='<button id="nextBtn" class="squishy" style="width:100%;background:#2ecc71;color:#005027;border:none;border-radius:16px;padding:24px;font-size:20px;font-weight:800;margin-top:16px;display:block;box-shadow:0 4px 0 0 #005027">'+(isLast?'🏆 Darsni tugatish':"➡️ Keyingi so'z")+'</button>';
+  r+='<button id="skipBtn" class="squishy" style="width:100%;background:none;color:#516152;border:2px solid #d6dcd6;border-radius:14px;padding:14px;font-size:14px;margin-top:8px;display:block;box-shadow:0 3px 0 0 #d6dcd6">⏭️ O\'tkazib yuborish</button>';
+  document.getElementById('resultArea').innerHTML=r;
+  document.getElementById('checkBtn').style.display='none';
+  document.getElementById('nextBtn').addEventListener('click',function(){if(isLast)finishLesson();else{curIdx++;showWord();}});
+  document.getElementById('skipBtn').addEventListener('click',function(){curIdx++;showWord();});
+  setTimeout(function(){var el=document.getElementById('resultArea');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},100);
+}
+
+function recWord(p,correct){var found=false,nw=[];for(var i=0;i<S.words.length;i++){var w=S.words[i];if(w.id===p.id){found=true;nw.push({id:w.id,ru:w.ru,uz:w.uz,a:w.a+1,c:w.c+(correct?1:0)});}else{nw.push(w);}}if(!found)nw.push({id:p.id,ru:p.ru,uz:p.uz,a:1,c:correct?1:0});S.words=nw;save();}
+
+function finishLesson(){if(S.done.indexOf(curL.id)===-1)S.done.push(curL.id);save();document.getElementById('doneName').textContent=curL.t;document.getElementById('doneOk').textContent=ok;document.getElementById('doneBad').textContent=bad;document.getElementById('donePct').textContent=Math.round(ok/curL.p.length*100)+'%';go('done');}
+
+// Bind navigation
+document.getElementById('nav0').onclick=function(){go('home');renderHome();setNav(0);};
+document.getElementById('nav1').onclick=function(){go('lessons');renderList();setNav(1);};
+document.getElementById('nav2').onclick=function(){go('words');renderWords();setNav(2);};
+document.getElementById('nav3').onclick=function(){go('rank');renderRank();setNav(3);};
+document.getElementById('backFromList').onclick=function(){go('home');renderHome();setNav(0);};
+document.getElementById('backFromLesson').onclick=function(){go('home');renderHome();setNav(0);};
+document.getElementById('backFromWords').onclick=function(){go('home');renderHome();setNav(0);};
+document.getElementById('backFromRank').onclick=function(){go('home');renderHome();setNav(0);};
+document.getElementById('backHome').onclick=function(){go('home');renderHome();setNav(0);};
+document.getElementById('searchBox').oninput=function(){renderList();};
+
+var dbg = document.getElementById('dataCheck');
+try {
+  if(typeof L === 'undefined') { if(dbg) dbg.textContent = 'L: undefined'; }
+  else if(!L) { if(dbg) dbg.textContent = 'L: null'; }
+  else if(!L.length) { if(dbg) dbg.textContent = 'L: empty'; }
+  else {
+    if(dbg) dbg.textContent = L.length + ' dars yuklandi!';
+    renderHome();
+    setTimeout(function(){ document.getElementById('loadingMsg').style.display = 'none'; }, 800);
+  }
+} catch(e) {
+  if(dbg) { dbg.textContent = 'XATOLIK: ' + e.message; dbg.style.color = '#ba1a1a'; }
+}
+
+// ---- Backend sync (only active inside Telegram; falls back to local-only otherwise) ----
+async function initBackendSync(){
+  if (!TG || !TG.initData) return; // not running inside Telegram — stay in local-only mode
+
+  try {
+    const r = await fetch('/api/user', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ initData: TG.initData })
+    });
+    const d = await r.json();
+    if (r.ok && d.user) {
+      if (d.user.banned) {
+        document.getElementById('bottomNav').style.display='none';
+        go('banned');
+        return;
+      }
+      S.streak = d.user.streak || 0;
+      S.lastDay = d.user.last_day || '';
+      S.done = d.user.done || [];
+      S.words = d.user.words || [];
+      S.ver = DATA_VERSION;
+      try{localStorage.setItem('baza',JSON.stringify(S));}catch(e){}
+      renderHome();
+    }
+  } catch(e) { /* offline or API unavailable — keep using local data */ }
+
+  try {
+    const r2 = await fetch('/api/lessons');
+    const d2 = await r2.json();
+    if (r2.ok && d2.lessons && d2.lessons.length) {
+      L = d2.lessons;
+      renderHome();
+    }
+  } catch(e) { /* keep built-in fallback lessons */ }
+}
+initBackendSync();
+
+</script>
+</body>
+</html>

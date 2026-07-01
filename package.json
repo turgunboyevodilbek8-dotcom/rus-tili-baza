@@ -1,0 +1,13 @@
+{
+  "name": "baza-rus-tili",
+  "private": true,
+  "version": "3.0.0",
+  "description": "O'zbeklar uchun rus tili o'rganish dasturi — Telegram Mini App, Supabase backend va admin panel bilan.",
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve ."
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0"
+  }
+}
