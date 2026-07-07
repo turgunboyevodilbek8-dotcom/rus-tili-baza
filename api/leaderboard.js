@@ -6,7 +6,7 @@ module.exports = async function handler(req, res) {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from('users')
-    .select('tg_id, first_name, xp, streak')
+    .select('tg_id, first_name, nickname, avatar, xp, streak')
     .eq('banned', false)
     .order('xp', { ascending: false })
     .limit(20);

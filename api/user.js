@@ -44,6 +44,8 @@ module.exports = async function handler(req, res) {
       done: [],
       words: [],
       dialogues_done: [],
+      nickname: '',
+      avatar: '',
       banned: false,
     })
     .select()
