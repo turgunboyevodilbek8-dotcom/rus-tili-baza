@@ -43,6 +43,7 @@ module.exports = async function handler(req, res) {
       last_day: '',
       done: [],
       words: [],
+      dialogues_done: [],
       banned: false,
     })
     .select()

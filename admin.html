@@ -86,6 +86,9 @@ textarea{font-family:monospace;font-size:12px}
       <a data-tab="lessons" class="navlink flex items-center gap-md p-md rounded-xl font-label-bold cursor-pointer" onclick="showTab('lessons')">
         <span class="material-symbols-outlined">school</span><span>Darslar</span>
       </a>
+      <a data-tab="dialogues" class="navlink flex items-center gap-md p-md rounded-xl font-label-bold cursor-pointer" onclick="showTab('dialogues')">
+        <span class="material-symbols-outlined">forum</span><span>Suhbatlar</span>
+      </a>
       <a data-tab="words" class="navlink flex items-center gap-md p-md rounded-xl font-label-bold cursor-pointer" onclick="showTab('words')">
         <span class="material-symbols-outlined">menu_book</span><span>So'zlar statistikasi</span>
       </a>
@@ -211,6 +214,33 @@ textarea{font-family:monospace;font-size:12px}
       </div>
     </section>
 
+    <!-- DIALOGUES TAB -->
+    <section id="tab-dialogues" class="hidden">
+      <header class="flex justify-between items-center mb-md">
+        <div>
+          <h2 class="text-headline-md">Suhbatlarni boshqarish</h2>
+          <p class="text-on-surface-variant text-label-sm">Jami: <span id="dialogueCount">0</span> suhbat</p>
+        </div>
+        <button onclick="openDialogueEditor(null)" class="squishy px-md py-sm bg-primary text-on-primary rounded-lg border-b-4 border-on-primary-fixed-variant font-label-bold flex items-center gap-xs">
+          <span class="material-symbols-outlined text-base">add</span> Yangi suhbat
+        </button>
+      </header>
+      <div class="bg-surface-container-lowest rounded-xl border-2 border-outline-variant overflow-hidden">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-surface-container-low border-b-2 border-outline-variant">
+            <tr>
+              <th class="px-md py-md text-label-bold text-on-surface-variant uppercase">#</th>
+              <th class="px-md py-md text-label-bold text-on-surface-variant uppercase">Nomi</th>
+              <th class="px-md py-md text-label-bold text-on-surface-variant uppercase">Bosqich</th>
+              <th class="px-md py-md text-label-bold text-on-surface-variant uppercase">Bosqichlar soni</th>
+              <th class="px-md py-md text-label-bold text-on-surface-variant uppercase text-right">Amallar</th>
+            </tr>
+          </thead>
+          <tbody id="dialoguesBody" class="divide-y divide-outline-variant"></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- WORDS TAB -->
     <section id="tab-words" class="hidden">
       <header class="mb-md">
@@ -268,6 +298,38 @@ textarea{font-family:monospace;font-size:12px}
   </div>
 </div>
 
+<div id="dialogueModal" class="hidden fixed inset-0 bg-black/40 flex items-center justify-center p-6 z-50">
+  <div class="bg-surface-container-lowest border-2 border-outline-variant rounded-xl p-lg w-full max-w-2xl max-h-[85vh] overflow-y-auto">
+    <h3 id="dialogueModalTitle" class="text-headline-sm mb-xs">Suhbat</h3>
+    <p class="text-on-surface-variant text-label-sm mb-md">ID, sarlavha, bosqich va suhbat bosqichlari (JSON)</p>
+    <label class="text-label-sm font-bold">ID (raqam, o'zgarmas)</label>
+    <input id="df_id" type="number" class="w-full px-md py-sm rounded-lg border-2 border-outline-variant bg-background mb-sm">
+    <label class="text-label-sm font-bold">Sarlavha (o'zbekcha)</label>
+    <input id="df_t" class="w-full px-md py-sm rounded-lg border-2 border-outline-variant bg-background mb-sm">
+    <label class="text-label-sm font-bold">Sarlavha (ruscha)</label>
+    <input id="df_tr" class="w-full px-md py-sm rounded-lg border-2 border-outline-variant bg-background mb-sm">
+    <label class="text-label-sm font-bold">Ikonka (emoji)</label>
+    <input id="df_icon" class="w-full px-md py-sm rounded-lg border-2 border-outline-variant bg-background mb-sm">
+    <label class="text-label-sm font-bold">Kategoriya</label>
+    <input id="df_cat" class="w-full px-md py-sm rounded-lg border-2 border-outline-variant bg-background mb-sm">
+    <label class="text-label-sm font-bold">Bosqich</label>
+    <select id="df_lv" class="w-full px-md py-sm rounded-lg border-2 border-outline-variant bg-background mb-sm">
+      <option value="basics">Noldan boshlash</option>
+      <option value="beginner">Boshlang'ich</option>
+      <option value="elementary">Qo'shimcha</option>
+      <option value="intermediate">O'rta</option>
+      <option value="upper">Yuqori</option>
+    </select>
+    <label class="text-label-sm font-bold">Bosqichlar (JSON array: npc, npc_uz, choices[{t,uz,ok,fb}])</label>
+    <textarea id="df_turns" class="w-full px-md py-sm rounded-lg border-2 border-outline-variant bg-background mb-sm font-mono text-[12px]" rows="14"></textarea>
+    <p id="dialogueErr" class="text-error text-label-sm mb-sm"></p>
+    <div class="flex justify-end gap-sm">
+      <button onclick="closeDialogueEditor()" class="squishy-ghost px-md py-sm bg-surface-container-high rounded-lg border-b-4 border-outline-variant font-label-bold">Bekor qilish</button>
+      <button onclick="saveDialogue()" class="squishy px-md py-sm bg-primary text-on-primary rounded-lg border-b-4 border-on-primary-fixed-variant font-label-bold">Saqlash</button>
+    </div>
+  </div>
+</div>
+
 <script>
 async function api(path, opts){
   opts = opts || {};
@@ -294,7 +356,7 @@ async function login(){
 async function logout(){ await api('/api/admin/logout',{method:'POST'}); location.reload(); }
 
 function showTab(name){
-  ['dash','users','lessons','words'].forEach(function(n){
+  ['dash','users','lessons','dialogues','words'].forEach(function(n){
     document.getElementById('tab-'+n).classList.toggle('hidden', n!==name);
   });
   document.querySelectorAll('.navlink').forEach(function(a){
@@ -308,6 +370,7 @@ function showTab(name){
   if (name==='dash') loadDashboard();
   if (name==='users') loadUsers();
   if (name==='lessons') loadLessons();
+  if (name==='dialogues') loadDialogues();
   if (name==='words') loadWords();
 }
 
@@ -431,6 +494,61 @@ async function saveLesson(){
 async function deleteLesson(id){
   if(!confirm('Bu darsni butunlay o\'chirish kerakmi?')) return;
   try{ await api('/api/admin/lessons',{method:'DELETE',body:{id:id}}); loadLessons(); }
+  catch(e){ alert(e.message); }
+}
+
+// ---------- Dialogues ----------
+var dialoguesCache = [];
+async function loadDialogues(){
+  try{
+    const d = await api('/api/admin/dialogues');
+    dialoguesCache = d.dialogues;
+    document.getElementById('dialogueCount').textContent = d.dialogues.length;
+    document.getElementById('dialoguesBody').innerHTML = d.dialogues.map(function(x){
+      return '<tr class="hover:bg-surface-container-low transition-colors">'+
+        '<td class="px-md py-md font-bold text-on-surface-variant">'+x.id+'</td>'+
+        '<td class="px-md py-md font-bold">'+(x.icon||'💬')+' '+esc(x.t)+'</td>'+
+        '<td class="px-md py-md"><span class="px-sm py-xs rounded-full text-label-sm font-bold bg-secondary-container text-on-secondary-container">'+esc(x.lv)+'</span></td>'+
+        '<td class="px-md py-md">'+(x.turns?x.turns.length:0)+'</td>'+
+        '<td class="px-md py-md text-right"><div class="flex items-center justify-end gap-xs">'+
+          '<button onclick="openDialogueEditor('+x.id+')" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-highest text-outline" title="Tahrirlash"><span class="material-symbols-outlined">edit</span></button>'+
+          '<button onclick="deleteDialogue('+x.id+')" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-error hover:text-white text-outline" title="O\'chirish"><span class="material-symbols-outlined">delete</span></button>'+
+        '</div></td>'+
+      '</tr>';
+    }).join('') || '<tr><td colspan="5" class="px-md py-lg text-center text-on-surface-variant">Suhbat yo\'q.</td></tr>';
+  }catch(e){ alert(e.message); }
+}
+function openDialogueEditor(id){
+  document.getElementById('dialogueErr').textContent = '';
+  var x = id ? dialoguesCache.find(function(v){return v.id===id;}) : null;
+  document.getElementById('dialogueModalTitle').textContent = x ? ('Suhbatni tahrirlash: '+x.t) : 'Yangi suhbat';
+  document.getElementById('df_id').value = x ? x.id : (Math.max(0, ...dialoguesCache.map(function(v){return v.id;})) + 1);
+  document.getElementById('df_id').disabled = !!x;
+  document.getElementById('df_t').value = x ? x.t : '';
+  document.getElementById('df_tr').value = x ? (x.tr||'') : '';
+  document.getElementById('df_icon').value = x ? (x.icon||'💬') : '💬';
+  document.getElementById('df_cat').value = x ? (x.cat||'') : '';
+  document.getElementById('df_lv').value = x ? x.lv : 'beginner';
+  var defaultTurns = [{npc:'',npc_uz:'',choices:[{t:'',uz:'',ok:true,fb:''},{t:'',uz:'',ok:false,fb:''}]}];
+  document.getElementById('df_turns').value = JSON.stringify(x ? x.turns : defaultTurns, null, 2);
+  document.getElementById('dialogueModal').classList.remove('hidden');
+}
+function closeDialogueEditor(){ document.getElementById('dialogueModal').classList.add('hidden'); }
+async function saveDialogue(){
+  var id = parseInt(document.getElementById('df_id').value,10);
+  var isNew = !document.getElementById('df_id').disabled;
+  var turns;
+  try{ turns = JSON.parse(document.getElementById('df_turns').value); }
+  catch(e){ document.getElementById('dialogueErr').textContent = 'Bosqichlar JSON formatida xato: '+e.message; return; }
+  var body = { id:id, t:document.getElementById('df_t').value, tr:document.getElementById('df_tr').value,
+    icon:document.getElementById('df_icon').value, cat:document.getElementById('df_cat').value,
+    lv:document.getElementById('df_lv').value, turns:turns };
+  try{ await api('/api/admin/dialogues',{method:isNew?'POST':'PUT',body:body}); closeDialogueEditor(); loadDialogues(); }
+  catch(e){ document.getElementById('dialogueErr').textContent = e.message; }
+}
+async function deleteDialogue(id){
+  if(!confirm('Bu suhbatni butunlay o\'chirish kerakmi?')) return;
+  try{ await api('/api/admin/dialogues',{method:'DELETE',body:{id:id}}); loadDialogues(); }
   catch(e){ alert(e.message); }
 }
 

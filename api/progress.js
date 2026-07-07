@@ -4,7 +4,7 @@ const { getSupabase } = require('./_lib/supabase');
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { initData, streak, lastDay, done, words } = req.body || {};
+  const { initData, streak, lastDay, done, words, dialoguesDone } = req.body || {};
   const botToken = process.env.TELEGRAM_BOT_TOKEN;
   const tgUser = verifyTelegramInitData(initData, botToken);
   if (!tgUser) return res.status(401).json({ error: 'Invalid Telegram data' });
@@ -22,7 +22,8 @@ module.exports = async function handler(req, res) {
 
   const safeWords = Array.isArray(words) ? words : [];
   const safeDone = Array.isArray(done) ? done : [];
-  const xp = safeWords.reduce((sum, w) => sum + (w.c || 0) * 10, 0) + safeDone.length * 50;
+  const safeDialoguesDone = Array.isArray(dialoguesDone) ? dialoguesDone : [];
+  const xp = safeWords.reduce((sum, w) => sum + (w.c || 0) * 10, 0) + safeDone.length * 50 + safeDialoguesDone.length * 30;
 
   const { error: updErr } = await supabase
     .from('users')
@@ -31,6 +32,7 @@ module.exports = async function handler(req, res) {
       last_day: lastDay || '',
       done: safeDone,
       words: safeWords,
+      dialogues_done: safeDialoguesDone,
       xp,
       updated_at: new Date().toISOString(),
     })
