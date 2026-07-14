@@ -324,25 +324,29 @@ function renderWords(){
   c.innerHTML=h;
 }
 
-var BOTS=[{n:'Malika',x:3120,s:22},{n:'Jasur',x:2850,s:18},{n:'Sardor',x:2400,s:15},{n:'Laylo',x:1980,s:12},{n:'Doniyor',x:1720,s:9},{n:'Nigora',x:1450,s:7},{n:'Madina',x:1210,s:5},{n:'Bekzod',x:980,s:3},{n:'Kamola',x:730,s:2}];
 async function renderRank(){
   var myXp=xpTotal();
   document.getElementById('rankMyXp').textContent=myXp;
-  var all=null;
+  var all=null, loadError=false;
   if (TG && TG.initData) {
     try{
       var r=await fetch('/api/leaderboard');
       var d=await r.json();
-      if(r.ok && d.leaderboard && d.leaderboard.length){
+      if(r.ok){
         var myId = (TG.initDataUnsafe && TG.initDataUnsafe.user) ? TG.initDataUnsafe.user.id : null;
-        all=d.leaderboard.map(function(u){return {n:(u.nickname&&u.nickname.trim())||u.first_name||'Foydalanuvchi',x:u.xp,s:u.streak,av:u.avatar||'',me:(myId!==null && u.tg_id===myId)};});
+        all=(d.leaderboard||[]).map(function(u){return {n:(u.nickname&&u.nickname.trim())||u.first_name||'Foydalanuvchi',x:u.xp,s:u.streak,av:u.avatar||'',me:(myId!==null && u.tg_id===myId)};});
         if(!all.some(function(u){return u.me;})) all.push({n:(PROFILE.nickname&&PROFILE.nickname.trim())||PROFILE.firstName||'Siz',x:myXp,s:S.streak,av:PROFILE.avatar||'',me:true});
+      } else {
+        console.error('leaderboard error', d);
+        loadError=true;
       }
-    }catch(e){}
+    }catch(e){ console.error('leaderboard fetch failed', e); loadError=true; }
+  } else {
+    // Not running inside Telegram (e.g. testing in a normal browser) — just show yourself
+    all=[{n:(PROFILE.nickname&&PROFILE.nickname.trim())||PROFILE.firstName||'Siz',x:myXp,s:S.streak,av:PROFILE.avatar||'',me:true}];
   }
   if(!all){
-    all=BOTS.map(function(b){return{n:b.n,x:b.x,s:b.s,av:'',me:false};});
-    all.push({n:(PROFILE.nickname&&PROFILE.nickname.trim())||PROFILE.firstName||'Siz',x:myXp,s:S.streak,av:PROFILE.avatar||'',me:true});
+    all=[{n:(PROFILE.nickname&&PROFILE.nickname.trim())||PROFILE.firstName||'Siz',x:myXp,s:S.streak,av:PROFILE.avatar||'',me:true}];
   }
   all.sort(function(a,b){return b.x-a.x;});
   var medals=['#FFD700','#C0C0C0','#CD7F32'];
@@ -373,7 +377,8 @@ async function renderRank(){
     lh+='<div style="text-align:right"><p style="font-weight:800;color:#006d37;font-size:14px">'+u.x+'</p><p style="font-size:9px;color:#8a9a8b;font-weight:700">XP</p></div>';
     lh+='</div>';
   }
-  document.getElementById('rankContent').innerHTML=ph+'<div>'+lh+'</div>';
+  var errBanner=loadError?'<div style="background:#fff9e0;border:1px solid #e6d060;border-radius:14px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#6f5900">⚠️ Umumiy reytingni yuklab bo\'lmadi, faqat sizning natijangiz ko\'rsatilmoqda. Internetni tekshiring yoki keyinroq urinib ko\'ring.</div>':'';
+  document.getElementById('rankContent').innerHTML=errBanner+ph+'<div>'+lh+'</div>';
 }
 
 var curL=null,curIdx=0,ok=0,bad=0;
