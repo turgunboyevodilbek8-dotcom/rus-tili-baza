@@ -32,6 +32,7 @@ input{font-family:inherit}
 </head>
 <body>
 <div class="page active" id="home">
+  <div id="syncBanner" style="display:none;background:#e7f8ee;color:#005027;border-radius:12px;padding:8px 14px;font-size:12px;margin-bottom:10px;text-align:center">🔄 Ma'lumotlar serverdan yuklanmoqda...</div>
   <div id="loadingMsg" style="background:#e7f8ee;border:2px solid #a7e8c3;border-radius:12px;padding:20px;margin-bottom:16px;text-align:center">
   <p style="font-size:24px;font-weight:700;color:#005027">⏳ Yuklanmoqda...</p>
   <p style="font-size:14px;color:#006d37;margin-top:8px">JavaScript ishlayapti ✅</p>
@@ -563,6 +564,9 @@ try {
 async function initBackendSync(){
   if (!TG || !TG.initData) return; // not running inside Telegram — stay in local-only mode
 
+  var banner = document.getElementById('syncBanner');
+  if(banner) banner.style.display='block';
+
   try {
     const r = await fetch('/api/user', {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -586,8 +590,15 @@ async function initBackendSync(){
       PROFILE.firstName = d.user.first_name || (TG.initDataUnsafe && TG.initDataUnsafe.user && TG.initDataUnsafe.user.first_name) || 'Foydalanuvchi';
       try{localStorage.setItem('baza',JSON.stringify(S));}catch(e){}
       renderHome();
+      if(banner) banner.style.display='none';
+    } else {
+      console.error('api/user failed', d);
+      if(banner){ banner.textContent='⚠️ Serverga ulanib bo\'lmadi. Ko\'rsatilayotgan ma\'lumot eski bo\'lishi mumkin.'; banner.style.background='#fff9e0'; banner.style.color='#6f5900'; }
     }
-  } catch(e) { /* offline or API unavailable — keep using local data */ }
+  } catch(e) {
+    console.error('api/user request failed', e);
+    if(banner){ banner.textContent='⚠️ Internet aloqasi yo\'q. Ko\'rsatilayotgan ma\'lumot eski bo\'lishi mumkin.'; banner.style.background='#fff9e0'; banner.style.color='#6f5900'; }
+  }
 
   try {
     const r2 = await fetch('/api/lessons');
